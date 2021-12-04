@@ -99,4 +99,5 @@ fn execute_test(test_name: &str) {
 
 fn main() {
     execute_test("keyboard");
+    execute_test("mouse");
 }

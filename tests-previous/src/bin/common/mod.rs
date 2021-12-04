@@ -3,8 +3,8 @@ use std::fs::File;
 use simple_logger::SimpleLogger;
 use winit::{
     event::{Event, WindowEvent},
-    event_loop::{ControlFlow, EventLoop},
-    window::WindowBuilder,
+    event_loop::{ControlFlow, EventLoop, EventLoopProxy},
+    window::{Window, WindowBuilder},
 };
 
 pub fn run<InitF: Fn(), CallbackF: FnMut(Event<'_, ()>, &mut File) + 'static>(

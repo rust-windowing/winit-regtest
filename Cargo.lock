@@ -1072,6 +1072,7 @@ name = "tests-current"
 version = "0.1.0"
 dependencies = [
  "enigo",
+ "once_cell",
  "serde",
  "serde_json",
  "simple_logger",
@@ -1083,6 +1084,7 @@ name = "tests-previous"
 version = "0.1.0"
 dependencies = [
  "enigo",
+ "once_cell",
  "serde",
  "serde_json",
  "simple_logger",
