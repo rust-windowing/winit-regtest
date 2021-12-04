@@ -1,0 +1,7 @@
+
+[workspace]
+members = [
+    "framework",
+    "tests-current",
+    "tests-previous",
+]

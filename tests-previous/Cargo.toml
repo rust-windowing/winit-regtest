@@ -1,0 +1,13 @@
+[package]
+name = "tests-previous"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+winit = { git = "https://github.com/mahkoh/winit.git", rev = "03f12db68564a4146d7e08e692d0da9740bae74d", features = ["serde"] }
+simple_logger = "1.15"
+enigo = "0.0.14"
+serde_json = "1.0"
+serde = "1.0"
