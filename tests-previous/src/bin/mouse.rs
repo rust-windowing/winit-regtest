@@ -1,14 +1,14 @@
-use std::{thread::spawn, time::Duration, fs::File, io::Write};
+use std::{fs::File, io::Write, thread::spawn, time::Duration};
 
 use simple_logger::SimpleLogger;
 use winit::{
+    dpi,
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     window::WindowBuilder,
-    dpi,
 };
 
-use enigo::{Enigo, KeyboardControllable, MouseControllable, MouseButton, Key};
+use enigo::{Enigo, Key, KeyboardControllable, MouseButton, MouseControllable};
 use serde_json;
 
 // const INWO: dpi::PhysicalPosition<i32> = dpi::PhysicalPosition::new(10, 100);
@@ -70,18 +70,13 @@ fn main() {
             Event::WindowEvent {
                 event: window_event,
                 ..
-            } => {
-                match window_event {
-                    WindowEvent::CursorMoved {
-                        position,
-                        ..
-                    } => {
-                        let json = serde_json::to_string(&position).unwrap();
-                        writeln!(output, "{}", json).unwrap();
-                    }
-                    _ => ()
+            } => match window_event {
+                WindowEvent::CursorMoved { position, .. } => {
+                    let json = serde_json::to_string(&position).unwrap();
+                    writeln!(output, "{}", json).unwrap();
                 }
-            }
+                _ => (),
+            },
             _ => (),
         }
     });

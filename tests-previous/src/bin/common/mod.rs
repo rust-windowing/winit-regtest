@@ -1,3 +1,4 @@
+use std::fs::File;
 
 use simple_logger::SimpleLogger;
 use winit::{
@@ -6,10 +7,9 @@ use winit::{
     window::WindowBuilder,
 };
 
-use std::fs::File;
-
 pub fn run<InitF: Fn(), CallbackF: FnMut(Event<'_, ()>, &mut File) + 'static>(
-    init: InitF, mut callback: CallbackF
+    init: InitF,
+    mut callback: CallbackF,
 ) {
     SimpleLogger::new().init().unwrap();
     let event_loop = EventLoop::new();
@@ -23,8 +23,7 @@ pub fn run<InitF: Fn(), CallbackF: FnMut(Event<'_, ()>, &mut File) + 'static>(
     init();
 
     let exe_path = std::env::current_exe().unwrap();
-    let mut output_filename = exe_path.file_name().unwrap().to_string_lossy().into_owned();
-    output_filename.push_str(".txt");
+    let output_filename = format!("{}.txt", exe_path.file_name().unwrap().to_string_lossy());
     let mut output = File::create(output_filename).unwrap();
 
     event_loop.run(move |event, _, control_flow| {

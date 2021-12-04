@@ -1,4 +1,4 @@
-use std::{thread::spawn, time::Duration, fs::File, io::Write};
+use std::{fs::File, io::Write, thread::spawn, time::Duration};
 
 use simple_logger::SimpleLogger;
 use winit::{
@@ -7,7 +7,7 @@ use winit::{
     window::WindowBuilder,
 };
 
-use enigo::{Enigo, KeyboardControllable, Key};
+use enigo::{Enigo, Key, KeyboardControllable};
 use serde_json;
 
 fn main() {

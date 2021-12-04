@@ -1,10 +1,8 @@
-use std::{thread::spawn, time::Duration, io::Write};
+use std::{io::Write, thread::spawn, time::Duration};
 
-use winit::{
-    event::{Event, WindowEvent},
-};
+use winit::event::{Event, WindowEvent};
 
-use enigo::{Enigo, KeyboardControllable, Key};
+use enigo::{Enigo, Key, KeyboardControllable};
 use serde::Serialize;
 use serde_json;
 
@@ -35,27 +33,20 @@ fn hacky_keyevent_from_winit(e: winit::event::KeyEvent) -> SerializableKeyEvent 
 }
 
 fn main() {
-    common::run(do_input, |event, output| {
-        match event {
-            Event::WindowEvent {
-                event: window_event,
-                ..
-            } => {
-                match window_event {
-                    WindowEvent::KeyboardInput {
-                        event,
-                        ..
-                    } => {
-                        let hacky_event = hacky_keyevent_from_winit(event);
-                        let json = serde_json::to_string(&hacky_event).unwrap();
-                        writeln!(output, "{}", json).unwrap();
-                        output.flush().unwrap();
-                    }
-                    _ => ()
-                }
+    common::run(do_input, |event, output| match event {
+        Event::WindowEvent {
+            event: window_event,
+            ..
+        } => match window_event {
+            WindowEvent::KeyboardInput { event, .. } => {
+                let hacky_event = hacky_keyevent_from_winit(event);
+                let json = serde_json::to_string(&hacky_event).unwrap();
+                writeln!(output, "{}", json).unwrap();
+                output.flush().unwrap();
             }
             _ => (),
-        }
+        },
+        _ => (),
     });
 }
 
