@@ -25,9 +25,15 @@ static MOUSE_POS_READY: AtomicBool = AtomicBool::new(false);
 static WINDOW_RELATIVE_POS: Lazy<Mutex<Option<dpi::PhysicalPosition<i32>>>> =
     Lazy::new(|| Mutex::new(None));
 
+#[derive(Debug)]
+enum MouseUserEvent {
+    MousePosReady,
+    RequestStop,
+}
+
 fn main() {
     SimpleLogger::new().init().unwrap();
-    let event_loop = EventLoop::new();
+    let event_loop = EventLoop::with_user_event();
 
     // Adding two to give enough space for the cursor (we place the cursor at MAX_DECORATION_SIZE+1 from the edge)
     let window_dimension = TEST_CURSOR_OFFSET + MAX_DECORATION_SIZE + 2;
@@ -62,11 +68,14 @@ fn main() {
         *control_flow = ControlFlow::Wait;
         // println!("{:?}", event);
         match event {
-            Event::UserEvent(()) => {
+            Event::UserEvent(MouseUserEvent::MousePosReady) => {
                 allow_recording = true;
                 if MOUSE_POS_READY.load(std::sync::atomic::Ordering::SeqCst) {
                     *WINDOW_RELATIVE_POS.lock().unwrap() = Some(last_mouse_pos);
                 }
+            }
+            Event::UserEvent(MouseUserEvent::RequestStop) => {
+                *control_flow = ControlFlow::Exit;
             }
             Event::WindowEvent {
                 event: WindowEvent::CloseRequested,
@@ -114,7 +123,10 @@ fn main() {
     });
 }
 
-fn do_input(window_top_right: dpi::PhysicalPosition<i32>, el_proxy: EventLoopProxy<()>) {
+fn do_input(
+    window_top_right: dpi::PhysicalPosition<i32>,
+    el_proxy: EventLoopProxy<MouseUserEvent>,
+) {
     // return;
     spawn(move || {
         let mut enigo = Enigo::new();
@@ -135,7 +147,7 @@ fn do_input(window_top_right: dpi::PhysicalPosition<i32>, el_proxy: EventLoopPro
         }
         MOUSE_POS_READY.store(true, std::sync::atomic::Ordering::SeqCst);
         // Wake up the event loop
-        el_proxy.send_event(());
+        el_proxy.send_event(MouseUserEvent::MousePosReady).unwrap();
 
         // Poll until we get the mouse pos from the window
         let relative_received_pos;
@@ -163,6 +175,6 @@ fn do_input(window_top_right: dpi::PhysicalPosition<i32>, el_proxy: EventLoopPro
         enigo.mouse_move_to(abs_corrected_x, abs_corrected_y);
         std::thread::sleep(Duration::from_millis(100));
 
-        std::process::exit(0);
+        el_proxy.send_event(MouseUserEvent::RequestStop).unwrap();
     });
 }

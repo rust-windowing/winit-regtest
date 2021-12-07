@@ -39,17 +39,24 @@ fn print_change(changeset: &Changeset) {
         let is_last = id == diff_count - 1;
         match diff {
             Difference::Same(contents) => {
+                let mut printed = false;
                 if !is_first {
                     if let Some(pos) = contents.find("\n") {
                         let last_line_contents = &contents.as_bytes()[0..pos + 1];
                         print!("{}", std::str::from_utf8(last_line_contents).unwrap());
+                        printed = true;
                     }
                 }
                 if !is_last {
                     if let Some(pos) = contents.rfind("\n") {
                         let last_line_contents = &contents.as_bytes()[pos..];
                         print!("{}", std::str::from_utf8(last_line_contents).unwrap());
+                        printed = true;
                     }
+                }
+                if (!is_first || !is_last) && !printed {
+                    // This can happen if the segment didn't contain any line breaks
+                    print!("{}", contents);
                 }
             }
             Difference::Add(contents) => {

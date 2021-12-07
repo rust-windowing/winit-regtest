@@ -7,12 +7,20 @@ use winit::{
     window::{Window, WindowBuilder},
 };
 
-pub fn run<InitF: Fn(), CallbackF: FnMut(Event<'_, ()>, &mut File) + 'static>(
+#[derive(Debug)]
+pub enum UserEvent {
+    RequestStop,
+}
+
+pub fn run<
+    InitF: Fn(EventLoopProxy<UserEvent>),
+    CallbackF: FnMut(Event<'_, UserEvent>, &mut File) + 'static,
+>(
     init: InitF,
     mut callback: CallbackF,
 ) {
     SimpleLogger::new().init().unwrap();
-    let event_loop = EventLoop::new();
+    let event_loop = EventLoop::with_user_event();
 
     let window = WindowBuilder::new()
         .with_title("winit test window!")
@@ -20,7 +28,7 @@ pub fn run<InitF: Fn(), CallbackF: FnMut(Event<'_, ()>, &mut File) + 'static>(
         .build(&event_loop)
         .unwrap();
 
-    init();
+    init(event_loop.create_proxy());
 
     let exe_path = std::env::current_exe().unwrap();
     let output_filename = format!("{}.txt", exe_path.file_name().unwrap().to_string_lossy());
@@ -30,6 +38,9 @@ pub fn run<InitF: Fn(), CallbackF: FnMut(Event<'_, ()>, &mut File) + 'static>(
         *control_flow = ControlFlow::Wait;
         // println!("{:?}", event);
         match &event {
+            Event::UserEvent(UserEvent::RequestStop) => {
+                *control_flow = ControlFlow::Exit;
+            }
             Event::WindowEvent {
                 event: WindowEvent::CloseRequested,
                 window_id,

@@ -1,6 +1,10 @@
 use std::{io::Write, thread::spawn, time::Duration};
 
-use winit::event::{Event, WindowEvent};
+use common::UserEvent;
+use winit::{
+    event::{Event, WindowEvent},
+    event_loop::EventLoopProxy,
+};
 
 use enigo::{Enigo, Key, KeyboardControllable};
 use serde::Serialize;
@@ -50,7 +54,7 @@ fn main() {
     });
 }
 
-fn do_input() {
+fn do_input(el_proxy: EventLoopProxy<UserEvent>) {
     static TARGET_KEYS: &[Key] = &[
         Key::Alt,
         Key::Backspace,
@@ -84,6 +88,18 @@ fn do_input() {
         Key::Space,
         Key::Tab,
         Key::UpArrow,
+        // Key::Layout('æ'),
+        // Key::Layout('ø'),
+        // Key::Layout('å'),
+        // Key::Layout('é'),
+        // Key::Layout('á'),
+        // Key::Layout('ű'),
+        // Key::Layout('ö'),
+        // Key::Layout('ü'),
+        // Key::Layout('ó'),
+        // Key::Layout('ő'),
+        // Key::Layout('ú'),
+        // Key::Layout('ж')
     ];
 
     spawn(move || {
@@ -97,6 +113,6 @@ fn do_input() {
             std::thread::sleep(Duration::from_millis(10));
         }
         std::thread::sleep(Duration::from_millis(100));
-        std::process::exit(0);
+        el_proxy.send_event(UserEvent::RequestStop).unwrap();
     });
 }
